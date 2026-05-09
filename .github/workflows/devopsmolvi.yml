@@ -35,6 +35,7 @@ jobs:
         with:
           task-definition: ecs-task.json
           container-name: nodejs
+          container-image: 054238436256.dkr.ecr.us-east-1.amazonaws.com/dev/nodeimages:latest
           service: node-app-srv-1
           cluster: node-app-dev
           wait-for-service-stability: true        
