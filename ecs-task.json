@@ -1,11 +1,11 @@
 {
-  "family": "node-app-tasks",
+  "family": "node-app-task",
   "networkMode": "awsvpc",
-  "executionRoleArn": "arn:aws:iam::559050236729:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::054238436256:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "name": "node-web-app",
-      "image": "559050236729.dkr.ecr.us-east-1.amazonaws.com/dev/nodeimages:latest",
+      "image": "054238436256.dkr.ecr.us-east-1.amazonaws.com/dev/nodeimages:latest",
       "essential": true,
       "portMappings": [
         {
