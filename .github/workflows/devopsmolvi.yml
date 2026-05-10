@@ -3,39 +3,46 @@ on:
   push:
     branches:
     - main
-  
+
 jobs:
   Build-App:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v5    
+      - uses: actions/checkout@v4
 
       - name: Build the Docker Image
         run: |
-         docker build . --tag 054238436256.dkr.ecr.us-east-1.amazonaws.com/dev/nodeimages:latest
-         
+          docker build . --tag 054238436256.dkr.ecr.us-east-1.amazonaws.com/dev/nodeimages:latest
+
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1 
+          aws-region: us-east-1
 
       - name: Login to Amazon Elastic Container Registry
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          mask-password: true
 
       - name: Push the Image to AWS ECR
         run: |
-            docker push 054238436256.dkr.ecr.us-east-1.amazonaws.com/dev/nodeimages:latest
+          docker push 054238436256.dkr.ecr.us-east-1.amazonaws.com/dev/nodeimages:latest
 
-      - name: Revisions on ECS with Updated Docker Images
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      - name: Render ECS Task Definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ecs-task.json
           container-name: nodejs
-          container-image: 054238436256.dkr.ecr.us-east-1.amazonaws.com/dev/nodeimages:latest
+          image: 054238436256.dkr.ecr.us-east-1.amazonaws.com/dev/nodeimages:latest
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: node-app-srv-1
           cluster: node-app-dev
-          wait-for-service-stability: true        
+          wait-for-service-stability: true
